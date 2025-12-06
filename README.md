@@ -6,16 +6,24 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
 
-**A retro-terminal themed web application that generates your personalized GitHub Wrapped, showcasing your coding journey throughout the year.**
+**An AI-powered, retro-terminal themed web application that generates your personalized GitHub Wrapped with a Spotify Wrapped-style narrative experience.**
 
-[Demo](#-demo) • [Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation)
+[Demo](#-demo) • [Features](#-features) • [Quick Start](#-quick-start) • [AI Features](#-ai-features)
 
 </div>
 
 ---
 
 ## ✨ Features
+
+### 🤖 **AI-Powered Narrative**
+- **Spotify Wrapped-Style Story**: AI generates a personalized 7-slide narrative about your coding year
+- **Creative Tech Commentary**: Hacker culture references, gaming vibes, and developer memes
+- **Fact-Based Storytelling**: Every stat is real, but delivered with maximum personality
+- **Custom Developer Titles**: AI assigns you an RPG-style title based on your activity
+- **Shareable Journey**: Full-screen immersive experience designed for screenshots
 
 ### 📊 **Comprehensive Statistics**
 - **Commits, PRs & Issues**: Track all your contributions in one place
@@ -26,7 +34,6 @@
 
 ### 🏆 **Smart Analytics**
 - **Developer Title**: Auto-assigned rank based on your activity patterns
-  - GitHub Legend, Commit Machine, PR Prodigy, and more!
 - **Vibe Score**: 0-100 score calculated from weighted metrics
 - **Achievement Badges**: Unlock badges for milestones
 - **Activity Intensity**: Commits per active day calculation
@@ -35,8 +42,8 @@
 ### 🎨 **Retro Terminal UI**
 - Authentic CRT monitor effects with scanlines
 - Pixel-perfect terminal green aesthetic
-- Smooth animations and hover effects
-- Shareable wrapped card generation
+- Smooth animations and progressive loading states
+- Shareable wrapped card generation on final slide
 - Mobile-responsive design
 
 ### ⚡ **Technical Excellence**
@@ -44,6 +51,7 @@
 - **Real-time Data**: Fetches live data from GitHub's REST & GraphQL APIs
 - **Smart Caching**: 10-minute TTL reduces API calls
 - **Fast Performance**: Built with FastAPI async operations
+- **AI Integration**: OpenAI GPT-4 for narrative generation
 - **Type Safety**: Pydantic models for data validation
 
 ---
@@ -55,6 +63,7 @@
 - **Python 3.9+** (for backend)
 - **Node.js 18+** (for frontend)
 - **GitHub Personal Access Token** ([Get one here](https://github.com/settings/tokens))
+- **OpenAI API Key** ([Get one here](https://platform.openai.com/api-keys)) - Required for AI narrative feature
 
 ### 1️⃣ Clone the Repository
 
@@ -82,7 +91,10 @@ pip install -r requirements.txt
 
 # Configure environment
 cp .env.example .env
-# Edit .env and add your GITHUB_TOKEN
+# Edit .env and add:
+#   - GITHUB_TOKEN (required)
+#   - OPENAI_API_KEY (required for AI features)
+#   - OPENAI_MODEL (optional, defaults to gpt-4o-mini)
 
 # Run the server
 python main.py
@@ -115,21 +127,39 @@ npm run dev
    - ✅ `read:user`
 5. Click **"Generate token"**
 6. Copy and paste into `backend/.env`
-
----
-
 ## 🎯 Usage
+
+### The Wrapped Experience
 
 1. **Start Backend**: `cd backend && python main.py`
 2. **Start Frontend**: `cd frontend && npm run dev`
 3. **Open Browser**: Navigate to `http://localhost:5173`
 4. **Enter Username**: Type any GitHub username (e.g., `octocat`)
-5. **Fetch Data**: Click the "FETCH_DATA" button
-6. **View Your Wrapped!** 🎉
+5. **Watch the Magic**: 
+   - ⏳ Progressive loading with 8 creative stages
+   - 🤖 AI generates your personalized story
+   - 📖 Full-screen narrative experience (7 slides)
+   - 📊 Detailed stats dashboard after story
+   - 📸 Downloadable wrapped card on final slide
+
+### User Flow
+
+```
+Landing Page → Enter Username → Creative Loading (8 stages) 
+→ AI Narrative Slides (7 slides) → Stats Dashboard → Share!
+```
 
 ### API Endpoints
 
 #### Get Wrapped Data
+```bash
+GET http://localhost:8000/api/wrapped/{username}?year=2025
+```
+
+#### Get AI Narrative
+```bash
+GET http://localhost:8000/api/narrative/{username}?year=2025
+```# Get Wrapped Data
 ```bash
 GET http://localhost:8000/api/wrapped/{username}?year=2025
 ```
@@ -179,7 +209,8 @@ GitHub Wrapped 2025/
 │   ├── 📂 app/
 │   │   ├── 📂 services/
 │   │   │   ├── github_client.py   # GitHub API integration
-│   │   │   └── cache.py           # In-memory caching
+│   │   │   ├── cache.py           # In-memory caching
+│   │   │   └── ai_narrator.py     # OpenAI integration for narratives
 │   │   ├── 📂 utils/
 │   │   │   └── scoring.py         # Vibe score & title logic
 │   │   └── 📂 models/
@@ -195,6 +226,7 @@ GitHub Wrapped 2025/
 │   │   │   ├── ActivityChart.jsx  # Monthly activity chart
 │   │   │   ├── Badge.jsx          # Developer title badge
 │   │   │   ├── Heatmap.jsx        # Contribution heatmap
+│   │   │   ├── NarrativeSlides.jsx # AI story slide viewer
 │   │   │   ├── PixelCard.jsx      # Retro card component
 │   │   │   ├── ShareCard.jsx      # Shareable image card
 │   │   │   ├── StatsGrid.jsx      # Stats overview grid
@@ -213,6 +245,39 @@ GitHub Wrapped 2025/
 ├── README.md                      # This file
 ├── SETUP.md                       # Detailed setup guide
 └── .gitignore                     # Git ignore rules
+```
+
+---
+
+## 🤖 AI Features
+
+### The Narrative Experience
+
+The AI narrator creates a **Spotify Wrapped-style story** with 7 distinct slides:
+
+1. **Intro Slide** - Epic year-in-code welcome
+2. **Activity Slide** - Commits, PRs, issues breakdown
+3. **Rhythm Slide** - Busiest month, day patterns, streak
+4. **Languages Slide** - Your tech stack/coding flavor
+5. **Top Repo Slide** - Your "platinum record" of the year
+6. **Title Slide** - Custom RPG-style developer title
+7. **Next Year Slide** - Goals + shareable social caption
+
+### AI Personality
+
+- **Tech-savvy**: Hacker slang, terminal aesthetics, dev culture
+- **Energetic**: Gaming achievements, epic moments, hype energy
+- **Fact-based**: Every number is real, no fake comparisons
+- **Meme-able**: Screenshot-worthy, share-ready content
+- **Creative**: Stack metaphors, binary jokes, coding wordplay
+
+### Configuration
+
+```bash
+# backend/.env
+OPENAI_API_KEY=sk-...           # Required
+OPENAI_MODEL=gpt-4o-mini        # Optional (faster & cheaper)
+# or use: gpt-4o for better quality
 ```
 
 ---
@@ -268,6 +333,7 @@ Your vibe score (0-100) is calculated using a weighted system:
 - **[Uvicorn](https://www.uvicorn.org/)** - Lightning-fast ASGI server
 - **[httpx](https://www.python-httpx.org/)** - Async HTTP client for API calls
 - **[Pydantic](https://docs.pydantic.dev/)** - Data validation using Python type hints
+- **[OpenAI](https://platform.openai.com/)** - GPT-4 for AI narrative generation
 - **Python 3.9+** - Backend programming language
 
 ### Frontend
@@ -363,13 +429,15 @@ npm run build
 ## 🐛 Troubleshooting
 
 ### Backend Issues
-
 | Problem | Solution |
 |---------|----------|
 | `GITHUB_TOKEN not found` | Ensure `.env` file exists with `GITHUB_TOKEN=your_token` |
+| `OPENAI_API_KEY not found` | Add `OPENAI_API_KEY=sk-...` to `.env` file |
+| AI narrative fails | Check OpenAI API key validity and credits |
 | `ModuleNotFoundError` | Activate venv: `venv\Scripts\activate` then `pip install -r requirements.txt` |
 | `Rate limit exceeded` | Your token may be invalid or hit GitHub's rate limit (5000/hour) |
 | `USER_NOT_FOUND` | Check username spelling or user may have changed their username |
+| Port 8000 already in use | Change `PORT=8001` in `.env` or kill process on port 8000 |
 | Port 8000 already in use | Change `PORT=8001` in `.env` or kill process on port 8000 |
 
 ### Frontend Issues
@@ -463,18 +531,22 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/Sakthi102003/Gitwrap/discussions)
 - ⭐ **Star this repo** if you found it helpful!
 
----
-
 ## 🗺️ Roadmap
 
+- [x] AI-powered narrative generation
+- [x] Spotify Wrapped-style slide experience
+- [x] Progressive loading states
+- [x] Shareable card on final slide
 - [ ] Add year-over-year comparison
-- [ ] Export to PDF/PNG functionality
-- [ ] Twitter/LinkedIn share integration
+- [ ] Multiple AI personality modes
+- [ ] Twitter/LinkedIn auto-share integration
 - [ ] Dark/Light theme toggle
 - [ ] Organization-level wrapped
 - [ ] Private repository support (OAuth)
 - [ ] Multi-year trends analysis
 - [ ] Custom color themes
+- [ ] Voice narration option
+- [ ] Leaderboard feature
 - [ ] Achievement system expansion
 - [ ] Leaderboard feature
 
