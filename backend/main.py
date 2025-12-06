@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 from app.services.github_client import GitHubClient
 from app.services.cache import cache
+from app.services.ai_narrator import get_narrator
 from app.utils.scoring import enrich_wrapped_data
 from app.models.wrapped_response import WrappedResponse, ErrorResponse, HealthResponse
 
@@ -47,6 +48,7 @@ async def root():
         "version": "1.0.0",
         "endpoints": {
             "wrapped": "/api/wrapped/{username}?year=YYYY",
+            "narrative": "/api/narrative/{username}?year=YYYY",
             "health": "/health"
         },
         "documentation": "/docs"
@@ -140,6 +142,90 @@ async def get_wrapped(
         raise HTTPException(
             status_code=500,
             detail="An error occurred while fetching data from GitHub"
+        )
+
+
+@app.get("/api/narrative/{username}")
+async def get_narrative(
+    username: str,
+    year: int = Query(default=datetime.now().year, ge=2008, le=datetime.now().year)
+):
+    """
+    Get AI-generated narrative (Spotify Wrapped-style story) for a user's GitHub activity.
+    
+    Args:
+        username: GitHub username
+        year: Year to analyze (default: current year)
+    
+    Returns:
+        AI-generated narrative slides
+    """
+    try:
+        # Validate username format
+        if not username or len(username) > 39:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid username format"
+            )
+        
+        # Check if OpenAI is configured
+        openai_key = os.getenv("OPENAI_API_KEY")
+        if not openai_key:
+            raise HTTPException(
+                status_code=503,
+                detail="AI narrative feature is not configured. Please set OPENAI_API_KEY."
+            )
+        
+        # Check cache for narrative
+        narrative_cache_key = f"{username}:{year}:narrative"
+        cached_narrative = cache.get(narrative_cache_key, year)
+        if cached_narrative:
+            print(f"Narrative cache hit for {username}:{year}")
+            return {**cached_narrative, "cached": True}
+        
+        print(f"Generating AI narrative for {username}:{year}")
+        
+        # First, get wrapped data (might be cached)
+        wrapped_cache = cache.get(username, year)
+        if wrapped_cache:
+            wrapped_data = wrapped_cache
+        else:
+            # Fetch fresh data
+            wrapped_data = await github_client.get_wrapped_data(username, year)
+            enriched_data = enrich_wrapped_data(wrapped_data)
+            cache.set(username, year, enriched_data, ttl=600)
+            wrapped_data = enriched_data
+        
+        # Generate AI narrative
+        narrator = get_narrator()
+        narrative_result = await narrator.generate_narrative(wrapped_data)
+        
+        if not narrative_result.get("success"):
+            raise HTTPException(
+                status_code=500,
+                detail=narrative_result.get("error", "Failed to generate narrative")
+            )
+        
+        # Cache the narrative (10 minutes)
+        cache.set(narrative_cache_key, year, narrative_result, ttl=600)
+        
+        return {**narrative_result, "cached": False}
+        
+    except HTTPException:
+        raise
+    except ValueError as e:
+        if str(e) == "USER_NOT_FOUND":
+            raise HTTPException(
+                status_code=404,
+                detail="The specified GitHub user does not exist"
+            )
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        error_msg = str(e)
+        print(f"Error generating narrative: {error_msg}")
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while generating the narrative"
         )
 
 

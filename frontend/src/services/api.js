@@ -20,6 +20,25 @@ export async function fetchWrappedData(username, year = new Date().getFullYear()
 }
 
 /**
+ * Fetch AI-generated narrative for a user's GitHub Wrapped
+ */
+export async function fetchNarrative(username, year = new Date().getFullYear()) {
+  try {
+    const response = await fetch(`${API_URL}/api/narrative/${username}?year=${year}`);
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch narrative');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching narrative:', error);
+    throw error;
+  }
+}
+
+/**
  * Check API health
  */
 export async function checkHealth() {

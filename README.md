@@ -458,9 +458,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Support
 
-- 📧 **Email**: your-email@example.com
-- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/github-wrapped-2025/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/github-wrapped-2025/discussions)
+- 📧 **Email**: sakthimurugan102003@gmail.com
+- 🐛 **Issues**: [GitHub Issues](https://github.com/Sakthi102003/Gitwrap/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/Sakthi102003/Gitwrap/discussions)
 - ⭐ **Star this repo** if you found it helpful!
 
 ---
@@ -477,21 +477,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - [ ] Custom color themes
 - [ ] Achievement system expansion
 - [ ] Leaderboard feature
-
----
-
-## 📸 Screenshots
-
-### Main Dashboard
-![Main Dashboard](screenshots/dashboard.png)
-
-### Contribution Heatmap
-![Heatmap](screenshots/heatmap.png)
-
-### Share Card
-![Share Card](screenshots/share-card.png)
-
----
 
 <div align="center">
 
