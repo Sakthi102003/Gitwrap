@@ -40,8 +40,7 @@ class AIWrappedNarrator:
     
     def _prepare_stats_summary(self, wrapped_data: Dict[str, Any]) -> str:
         """Prepare a clean summary of stats for the AI prompt."""
-        user = wrapped_data.get("user", {})
-        stats = wrapped_data.get("stats", {})
+        # The wrapped_data has a flat structure, not nested user/stats
         repos = wrapped_data.get("topRepos", [])
         languages = wrapped_data.get("topLanguages", [])
         
@@ -57,21 +56,21 @@ class AIWrappedNarrator:
         lang3 = languages[2] if len(languages) > 2 else {}
         
         # Get busiest month and day
-        busiest_month_index = stats.get("busiestMonth", {}).get("month", 1)
-        busiest_month_commits = stats.get("busiestMonth", {}).get("commits", 0)
-        busiest_day_index = stats.get("busiestDayOfWeek", {}).get("day", 0)
+        busiest_month_index = wrapped_data.get("busiestMonth", {}).get("month", 1)
+        busiest_month_commits = wrapped_data.get("busiestMonth", {}).get("commits", 0)
+        busiest_day_index = wrapped_data.get("busiestDayOfWeek", {}).get("day", 0)
         
-        summary = f"""USERNAME: {user.get('login', 'N/A')}
-NAME: {user.get('name', 'N/A')}
+        summary = f"""USERNAME: {wrapped_data.get('username', 'N/A')}
+NAME: {wrapped_data.get('name', 'N/A')}
 YEAR: {wrapped_data.get('year', 2025)}
 
-totalCommits: {stats.get('totalCommits', 0)}
-totalPRs: {stats.get('totalPRs', 0)}
-totalIssues: {stats.get('totalIssues', 0)}
-repoCount: {stats.get('repoCount', 0)}
-totalStars: {stats.get('totalStars', 0)}
-followers: {user.get('followers', 0)}
-streak: {stats.get('longestStreak', 0)}
+totalCommits: {wrapped_data.get('totalCommits', 0)}
+totalPRs: {wrapped_data.get('totalPRs', 0)}
+totalIssues: {wrapped_data.get('totalIssues', 0)}
+repoCount: {wrapped_data.get('repoCount', 0)}
+totalStars: {wrapped_data.get('totalStars', 0)}
+followers: {wrapped_data.get('followers', 0)}
+streak: {wrapped_data.get('streak', 0)}
 
 topLanguages: {lang1.get('name', 'N/A')} ({lang1.get('count', 0)}), {lang2.get('name', 'N/A')} ({lang2.get('count', 0)}), {lang3.get('name', 'N/A')} ({lang3.get('count', 0)})
 busiestMonth: {self._get_month_name(busiest_month_index)} ({busiest_month_commits} commits)

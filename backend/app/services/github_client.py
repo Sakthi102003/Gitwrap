@@ -38,7 +38,8 @@ class GitHubClient:
                 "username": data["login"],
                 "name": data.get("name") or data["login"],
                 "avatarUrl": data["avatar_url"],
-                "publicRepos": data["public_repos"]
+                "publicRepos": data["public_repos"],
+                "followers": data.get("followers", 0)
             }
     
     async def get_user_repositories(self, username: str) -> List[Dict]:
@@ -244,6 +245,7 @@ class GitHubClient:
             "username": profile["username"],
             "name": profile["name"],
             "avatarUrl": profile["avatarUrl"],
+            "followers": profile["followers"],
             "year": year,
             "totalCommits": contributions["totalCommits"],
             "totalPRs": contributions["totalPRs"],

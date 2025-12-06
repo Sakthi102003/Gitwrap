@@ -162,18 +162,45 @@ def get_most_productive_month(heatmap_days: List[Dict]) -> Dict:
         month_counts[month] = month_counts.get(month, 0) + count
     
     if not month_counts:
-        return None
+        return {"month": 1, "commits": 0}
     
     most_productive = max(month_counts.items(), key=lambda x: x[1])
     month_key, count = most_productive
     
-    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    month_index = int(month_key.split("-")[1]) - 1
+    # Return month index (1-12) instead of name
+    month_index = int(month_key.split("-")[1])
     
     return {
-        "month": month_names[month_index],
-        "count": count
+        "month": month_index,
+        "commits": count
+    }
+
+
+def get_busiest_day_of_week(heatmap_days: List[Dict]) -> Dict:
+    """Get the day of week with most commits."""
+    from datetime import datetime
+    
+    day_counts = [0] * 7  # Monday=0, Sunday=6
+    
+    for day in heatmap_days:
+        date_str = day.get("date", "")
+        count = day.get("count", 0)
+        if date_str:
+            try:
+                date_obj = datetime.fromisoformat(date_str.replace("Z", ""))
+                day_of_week = date_obj.weekday()  # Monday=0, Sunday=6
+                day_counts[day_of_week] += count
+            except:
+                pass
+    
+    if sum(day_counts) == 0:
+        return {"day": 0, "commits": 0}
+    
+    busiest_day = max(range(7), key=lambda i: day_counts[i])
+    
+    return {
+        "day": busiest_day,
+        "commits": day_counts[busiest_day]
     }
 
 
@@ -183,7 +210,11 @@ def enrich_wrapped_data(data: Dict) -> Dict:
     title = calculate_developer_title(data)
     achievements = calculate_achievements(data)
     intensity = calculate_activity_intensity(data)
-    productive_month = get_most_productive_month(data.get("heatmapDays", []))
+    heatmap_days = data.get("heatmapDays", [])
+    
+    # Calculate busiest month and day of week
+    busiest_month = get_most_productive_month(heatmap_days)
+    busiest_day_of_week = get_busiest_day_of_week(heatmap_days)
     
     return {
         **data,
@@ -191,5 +222,6 @@ def enrich_wrapped_data(data: Dict) -> Dict:
         "title": title,
         "achievements": achievements,
         "intensity": intensity,
-        "productiveMonth": productive_month
+        "busiestMonth": busiest_month,
+        "busiestDayOfWeek": busiest_day_of_week
     }

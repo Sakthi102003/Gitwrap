@@ -27,15 +27,21 @@ class AchievementModel(BaseModel):
     icon: str
 
 
-class ProductiveMonth(BaseModel):
-    month: str
-    count: int
+class BusiestMonth(BaseModel):
+    month: int
+    commits: int
+
+
+class BusiestDayOfWeek(BaseModel):
+    day: int
+    commits: int
 
 
 class WrappedResponse(BaseModel):
     username: str
     name: str
     avatarUrl: str
+    followers: int
     year: int
     totalCommits: int
     totalPRs: int
@@ -51,7 +57,8 @@ class WrappedResponse(BaseModel):
     title: str
     achievements: List[AchievementModel]
     intensity: float
-    productiveMonth: Optional[ProductiveMonth]
+    busiestMonth: Optional[BusiestMonth]
+    busiestDayOfWeek: Optional[BusiestDayOfWeek]
     cached: bool = False
 
 
